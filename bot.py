@@ -13,61 +13,66 @@ except ImportError:
     install('openpyxl')
     import pandas as pd
 
-# 1. Excel file ko read karna
+# Excel file ka sahi naam
 excel_file = 'laptop.xlsx'
 posts_html = ""
 keywords_list = []
 
 if os.path.exists(excel_file):
-    xl = pd.ExcelFile(excel_file)
-    # Excel ke saare sheets (tabs) par loop chalana
-    for sheet_name in xl.sheet_names:
-        df = pd.read_excel(excel_file, sheet_name=sheet_name)
-        
-        # Columns ke naam clean karna
-        df.columns = [str(c).strip().lower() for c in df.columns]
-        
-        for index, row in df.iterrows():
-            # Agar model khali hai toh skip karein
-            if pd.isna(row.get('model')) or str(row.get('model')).strip() == "" or "model" in str(row.get('model')).lower():
-                continue
+    try:
+        xl = pd.ExcelFile(excel_file)
+        # Excel ke saare sheets (tabs) par loop chalana
+        for sheet_name in xl.sheet_names:
+            df = pd.read_excel(excel_file, sheet_name=sheet_name)
+            
+            # Columns ke naam clean karna
+            df.columns = [str(c).strip().lower() for c in df.columns]
+            
+            for index, row in df.iterrows():
+                # Agar model khali hai toh skip karein
+                model_val = row.get('model')
+                if pd.isna(model_val) or str(model_val).strip() == "" or "model" in str(model_val).lower():
+                    continue
+                    
+                model = str(model_val).strip()
+                gen = str(row.get('gen', '')).strip()
+                ram = str(row.get('ram', '')).strip()
+                hdd = str(row.get('hdd', '')).strip()
+                card = str(row.get('card', '')).strip()
+                price = str(row.get('sell price', row.get('price', ''))).strip()
                 
-            model = str(row.get('model', '')).strip()
-            gen = str(row.get('gen', '')).strip()
-            ram = str(row.get('ram', '')).strip()
-            hdd = str(row.get('hdd', '')).strip()
-            card = str(row.get('card', '')).strip()
-            price = str(row.get('sell price', row.get('price', ''))).strip()
-            
-            if gen and gen != 'nan': model += f" ({gen})"
-            
-            # SEO Keywords generate karna
-            keywords_list.append(f"{model} price in Pakistan, used laptop {model}")
-            
-            # Graphics card text setup
-            card_info = f"<li><strong>GPU:</strong> {card}</li>" if card and card != 'nan' and card != '1' else ""
-            
-            # Har laptop ki post ka HTML design
-            posts_html += f"""
-            <div class="post-card">
-                <h2>🔥 {model}</h2>
-                <div class="specs">
-                    <ul>
-                        <li><strong>RAM:</strong> {ram if ram != 'nan' else '8'} GB</li>
-                        <li><strong>Storage:</strong> {hdd if hdd != 'nan' else '256'} SSD/HDD</li>
-                        {card_info}
-                    </ul>
+                if gen and gen != 'nan': 
+                    model += f" ({gen})"
+                
+                # SEO Keywords generate karna
+                keywords_list.append(f"{model} price in Pakistan")
+                
+                # Graphics card text setup
+                card_info = f"<li><strong>GPU:</strong> {card}</li>" if card and card != 'nan' and card != '1' else ""
+                
+                # Har laptop ki post ka HTML design
+                posts_html += f"""
+                <div class="post-card">
+                    <h2>🔥 {model}</h2>
+                    <div class="specs">
+                        <ul>
+                            <li><strong>RAM:</strong> {ram if ram != 'nan' else '8'} GB</li>
+                            <li><strong>Storage:</strong> {hdd if hdd != 'nan' else '256'} SSD/HDD</li>
+                            {card_info}
+                        </ul>
+                    </div>
+                    <div class="price-tag">Price: {price if price != 'nan' else 'Call'}</div>
+                    <a href="https://whatsapp.com/channel/0029VbCMtxgJ93wV9FOx7u1D" class="btn-join" target="_blank">Order on WhatsApp</a>
                 </div>
-                <div class="price-tag">Price: {price if price != 'nan' else 'Call'}</div>
-                <a href="https://whatsapp.com/channel/0029VbCMtxgJ93wV9FOx7u1D" class="btn-join" target="_blank">Order on WhatsApp</a>
-            </div>
-            """
+                """
+    except Exception as e:
+        posts_html = f"<p>Excel parhne mein error aaya: {str(e)}</p>"
 else:
     posts_html = "<p>No stock data found. Please check laptop.xlsx file.</p>"
 
 seo_keywords = ", ".join(keywords_list[:20])
 
-# 2. Main HTML Template with Auto SEO
+# Main HTML Template with Auto SEO
 html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,4 +117,4 @@ html_template = f"""<!DOCTYPE html>
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html_template)
 
-print("Website updated with SEO tags successfully!")
+print("Website updated successfully!")
