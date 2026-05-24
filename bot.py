@@ -4,7 +4,7 @@ import sys
 
 # Required libraries ko background mein install karna
 def install(package):
-    subprocess.check_call([sys.executable, "-m", pipe, "install", package, "--quiet"])
+    subprocess.check_call([sys.executable, "-m", "pip" "install", package, "--quiet"])
 
 try:
     import pandas as pd
