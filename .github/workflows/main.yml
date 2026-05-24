@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'laptop.xlsx'
+  workflow_dispatch: # Is se manual run karne ka button aa jayega
 
 jobs:
   build:
